@@ -11,7 +11,7 @@ def generate_tests_by_month(all_data) -> LabelledCollection:
         yield qp.data.LabelledCollection(test_split_data, test_split_labels, classes_=[0,1])
 
 
-def test_quantifier(quantifier_list, transformed_data):
+def test_quantifiers(quantifier_list, transformed_data):
     tests = []
 
     for i, df_test in enumerate(generate_tests_by_month(transformed_data)):
