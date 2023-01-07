@@ -1,0 +1,69 @@
+import pandas as pd
+
+def generate_synthetic_p(df, p=0.2, random_state=42):
+    transformed = pd.DataFrame()
+
+    for m in range(0, 8):
+      month_f = df[df.month.eq(m) & df.fraud_bool.eq(1)]
+      month_nf = df[df.month.eq(m) & df.fraud_bool.eq(0)].sample(n = int(month_f.fraud_bool.sum()*(1/p - 1)), random_state=random_state)
+      #print(month_f.shape[0], month_nf.shape[0])
+      generated_month_sampling = df.iloc[month_f.index.union(month_nf.index), :]
+      transformed = pd.concat([transformed, generated_month_sampling])
+
+    return transformed
+
+def shuffle_between_months(base_data, random_state=42):
+    transformed = pd.DataFrame()
+    consumed_fraud_index = np.array([])
+    consumed_nonfraud_index = np.array([])
+
+    f_index = base_data[base_data.fraud_bool.eq(1)].index
+    nf_index = base_data[base_data.fraud_bool.eq(0)].index
+
+    for m in range(8):
+
+        # number of fraud and non_fraud in this month m
+        n_f = base_data[base_data.month.eq(m)].fraud_bool.eq(1).sum()
+        n_nf = base_data[base_data.month.eq(m)].fraud_bool.eq(0).sum()
+
+        # get available indexes that have not been sampled
+        remaining_index_fraud = f_index[~f_index.isin(consumed_fraud_index)]
+        remaining_index_nonfraud = nf_index[~nf_index.isin(consumed_nonfraud_index)]
+
+        # get n_f samples of non fraud rows conditioned to available indexes
+        f_samples = (base_data
+                        .loc[remaining_index_fraud]
+                        .sample(n=n_f, random_state=random_state)
+                        )
+        # update month of the new samples
+        f_samples['month'] = m
+
+        # get n_nf samples of fraud rows conditioned to available indexes
+        nf_samples = (base_data
+                        .loc[remaining_index_nonfraud]
+                        .sample(n=n_nf, random_state=random_state))
+        nf_samples['month'] = m
+
+        # store new month samples
+        transformed = pd.concat([transformed, f_samples, nf_samples])
+        
+        # make sure sampled indexes are not used again
+        consumed_fraud_index = transformed[transformed.fraud_bool.eq(1)].index
+        consumed_nonfraud_index = transformed[transformed.fraud_bool.eq(0)].index
+
+    return transformed
+
+def data_split(df, size = [4, 1, 3]):
+    select_train = df.month < size[0]
+    select_eval = (df.month >= size[0]) & (df.month < (size[0] + size[1]))
+    select_test = df.month > (size[0] + size[1])
+
+    X_train = df[select_train].drop(['fraud_bool','month'], axis=1)
+    X_valid = df[select_eval].drop(['fraud_bool','month'], axis=1)
+    X_test = df[select_test].drop(['fraud_bool','month'], axis=1)
+
+    y_train = df[select_train].fraud_bool
+    y_valid = df[select_eval].fraud_bool
+    y_test = df[select_test].fraud_bool
+
+    return X_train, X_valid, X_test, y_train, y_valid, y_test
