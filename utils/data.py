@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 def generate_synthetic_p(df, p=0.2, random_state=42):
     transformed = pd.DataFrame()
