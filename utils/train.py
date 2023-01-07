@@ -8,7 +8,6 @@ from copy import deepcopy
 import lightgbm as lgb
 import optuna
 
-TRIALS = 100
 
 
 def select_threshold(target, predicted, max_fpr=0.01):
@@ -124,7 +123,7 @@ def objective(trial, train_df, eval_df):
     return recall_at_5perc_fpr, balanced_accuracy
 
 
-def hypertune(train_data, valid_data):
+def hypertune(n_trails, train_data, valid_data):
 
     objective_p = partial(objective, train_df=train_data, eval_df=valid_data)
 
@@ -133,7 +132,7 @@ def hypertune(train_data, valid_data):
         sampler=optuna.samplers.TPESampler(),  # seed=SEED),
         pruner=optuna.pruners.MedianPruner(n_warmup_steps=10),
     )
-    study.optimize(objective_p, n_trials=TRIALS)  # , timeout=600)
+    study.optimize(objective_p, n_trials=n_trails)  # , timeout=600)
 
     print("Number of finished trials: ", len(study.trials))
     print(f"Number of trials on the Pareto front: {len(study.best_trials)}")
