@@ -1,7 +1,7 @@
 import quapy as qp
 import pandas as pd
 
-from data import generate_tests_by_month
+from utils.data import generate_tests_by_month
 
 def test_quantifiers(quantifier_list, transformed_data):
     tests = []
