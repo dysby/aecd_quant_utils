@@ -6,7 +6,7 @@ from utils.data import generate_tests_by_month
 def test_quantifiers(quantifier_list, transformed_data):
     tests = []
 
-    for i, df_test in enumerate(generate_tests_by_month(transformed_data)):
+    for m, df_test in enumerate(generate_tests_by_month(transformed_data)):
 
         for (idx, calibration_method, q_method, quantifier) in quantifier_list:
 
@@ -16,19 +16,19 @@ def test_quantifiers(quantifier_list, transformed_data):
             mrae = qp.error.mrae(true_prevalence, estim_prevalence)
             mkld = qp.error.mkld(true_prevalence, estim_prevalence)
 
-        tests.append(
-            {
-                "Month": 5 + i,
-                "Model": idx,
-                "Quantifier": q_method,
-                "Calibration": calibration_method,
-                "MAE": error,
-                "MRAE": mrae,
-                "KLD": mkld,
-                "Prevalence (Estimated)": estim_prevalence[1],
-                "Prevalence (True)": true_prevalence[1],
-            }
-        )
+            tests.append(
+                {
+                    "Month": 6 + m,
+                    "Model": idx,
+                    "Quantifier": q_method,
+                    "Calibration": calibration_method,
+                    "MAE": error,
+                    "MRAE": mrae,
+                    "KLD": mkld,
+                    "Prevalence (Estimated)": estim_prevalence[1],
+                    "Prevalence (True)": true_prevalence[1],
+                }
+            )
 
     return pd.DataFrame(tests)
 
@@ -52,6 +52,11 @@ def generate_quantifiers(clfs, dataset_training, dataset_eval):
         q_method = "ACCt"
         q = qp.method.custom_threshold.ACCWithThreshold(clf, thr)
         q.fit(dataset_training, fit_learner=False, val_split=dataset_eval)
+        quantifiers.append((idx, calibration_method, q_method, q))
+        
+        q_method = "PCC"
+        q = qp.method.aggregative.PCC(clf)
+        q.fit(dataset_training, fit_learner=False)
         quantifiers.append((idx, calibration_method, q_method, q))
 
         # qname = name + "_PACC"
