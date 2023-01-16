@@ -77,6 +77,21 @@ def generate_quantifiers(clfs, dataset_training, dataset_eval):
         q.fit(dataset_training, fit_learner=False, val_split=dataset_eval)
         quantifiers.append((idx, calibration_method, q_method, q))
 
+        q_method = "T50"
+        q = qp.method.aggregative.T50(clf)
+        q.fit(dataset_training, fit_learner=False, val_split=dataset_eval)
+        quantifiers.append((idx, calibration_method, q_method, q))
+
+        q_method = "X"
+        q = qp.method.aggregative.X(clf)
+        q.fit(dataset_training, fit_learner=False, val_split=dataset_eval)
+        quantifiers.append((idx, calibration_method, q_method, q))
+
+        q_method = "MAX"
+        q = qp.method.aggregative.MAX(clf)
+        q.fit(dataset_training, fit_learner=False, val_split=dataset_eval)
+        quantifiers.append((idx, calibration_method, q_method, q))
+
         # qname = name + "_MS"
         # q = qp.method.aggregative.MS(clf)
         # q.fit(dataset_training, fit_learner=False, val_split=dataset_eval)
