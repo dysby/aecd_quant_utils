@@ -53,7 +53,12 @@ def generate_quantifiers(clfs, dataset_training, dataset_eval):
         q = qp.method.custom_threshold.ACCWithThreshold(clf, thr)
         q.fit(dataset_training, fit_learner=False, val_split=dataset_eval)
         quantifiers.append((idx, calibration_method, q_method, q))
-        
+       
+        q_method = "ACC"
+        q = qp.method.aggregative.ACC(clf)
+        q.fit(dataset_training, fit_learner=False, val_split=dataset_eval)
+        quantifiers.append((idx, calibration_method, q_method, q))
+
         q_method = "PCC"
         q = qp.method.aggregative.PCC(clf)
         q.fit(dataset_training, fit_learner=False)
