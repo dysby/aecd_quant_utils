@@ -162,11 +162,11 @@ def do_n_tests_with_subsampling_on_qlist(qs, X_test: pd.DataFrame, y_test: pd.Da
         #print(f"  Train: index={train_index}")
         #print(f"  Test:  index={test_index}")
 
-        p = y_test[test_index].sum() / len(y_test[test_index]) 
+        p = y_test.loc(test_index).sum() / len(test_index) 
         true_prevalence = [1 - p, p]
 
         for (idx, calibration_method, q_name, q) in qs:
-            estim_prevalence = q.quantify(X_test[test_index])
+            estim_prevalence = q.quantify(X_test.loc(test_index))
             ae = qp.error.ae(true_prevalence, estim_prevalence)
             rae = qp.error.rae(true_prevalence, estim_prevalence)
             kld = qp.error.kld(true_prevalence, estim_prevalence)
