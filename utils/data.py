@@ -64,7 +64,7 @@ def shuffle_between_months(base_data, random_state=42):
 def data_split(df, size=[4, 1, 3]):
     select_train = df.month < size[0]
     select_eval = (df.month >= size[0]) & (df.month < (size[0] + size[1]))
-    select_test = df.month > (size[0] + size[1])
+    select_test = df.month >= (size[0] + size[1])
 
     X_train = df[select_train].drop(["fraud_bool", "month"], axis=1)
     X_valid = df[select_eval].drop(["fraud_bool", "month"], axis=1)
