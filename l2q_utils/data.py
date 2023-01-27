@@ -125,6 +125,6 @@ def subsample_by_p_target(data, p):
 
 def bootstrap(data: pd.DataFrame, fraction: float = 0.1):
     sample = data.sample(int(data.shape[0] * fraction), replace=True)
-    return sample.drop(["month", "fraud_bool"]), sample[["fraud_bool"]]
+    return sample.drop(["month", "fraud_bool"], axis=1), sample[["fraud_bool"]]
 
 
