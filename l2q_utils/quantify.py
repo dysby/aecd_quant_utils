@@ -16,7 +16,7 @@ from .data import generate_tests_by_month, bootstrap
 def _quantify(quantifiers, X_test, y_test):
     tests = []
 
-    true_prevalence = F.prevalence_from_labels(y_test)
+    true_prevalence = F.prevalence_from_labels(y_test, classes=[0,1])
 
     for (idx, calibration_method, q_method, quantifier) in quantifiers:
 
