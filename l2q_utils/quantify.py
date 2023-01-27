@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import StratifiedShuffleSplit
 
-from utils.data import generate_tests_by_month, bootstrap
+from .data import generate_tests_by_month, bootstrap
 
 # QuantifierTestResult = frozentuple(QuantifierTestResult, "Month Model Quantifier Calibration MAE MRAE KLD, prevalence_estimate, prevalence_true")
 
