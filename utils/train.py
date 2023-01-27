@@ -151,7 +151,7 @@ def hypertune(n_trails, train_data, valid_data):
     return [t.params for t in top3]
 
 
-def train(models_params, X_train, y_train, X_eval, y_eval):
+def train_lbgm(models_params, X_train, y_train, X_eval, y_eval):
     trained_models = []
     for p in models_params:
         clf = lgb.LGBMClassifier(**p, device="gpu")

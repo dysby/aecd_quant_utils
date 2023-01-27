@@ -4,6 +4,8 @@ import numpy as np
 import quapy as qp
 from quapy.data import LabelledCollection
 
+def artificial_prevalence_sampling(data: pd.DataFrame, p=0.2, random_state=42):
+    pass
 
 def generate_synthetic_p(df, p=0.2, random_state=42):
     transformed = pd.DataFrame()
@@ -86,3 +88,43 @@ def generate_tests_by_month(all_data) -> LabelledCollection:
         yield qp.data.LabelledCollection(
             test_split_data, test_split_labels, classes_=[0, 1]
         )
+
+
+def subsample_by_p_target(data, p):
+    N = data.shape[0]
+
+    max_positives = int(data.fraud_bool.eq(1).sum())
+    max_negatives = int(data.fraud_bool.eq(0).sum())
+
+    positives = int(N * p)
+    negatives = int(N * (1 - p))
+
+    if positives > max_positives:
+        positives = max_positives
+        negatives = max_positives / p - max_positives
+    elif negatives > max_negatives:
+        negatives = max_negatives
+        positives = max_negatives / (1 - p) - max_negatives
+
+    positives = int(positives)
+    negatives = int(negatives)
+
+    # print(f"positives = {positives}, negatives = {negatives}")
+    sample = pd.concat(
+        [
+            data[data.fraud_bool.eq(0)].drop("month", axis=1).sample(negatives),
+            data[data.fraud_bool.eq(1)].drop("month", axis=1).sample(positives),
+        ]
+    )
+
+    sampleX = sample.drop("fraud_bool", axis=1)
+    sampley = sample[["fraud_bool"]]
+
+    return sampleX, sampley
+
+
+def bootstrap(data: pd.DataFrame, fraction: float = 0.1):
+    sample = data.sample(int(data.shape[0] * fraction), replace=True)
+    return sample.drop(["month", "fraud_bool"]), sample[["fraud_bool"]]
+
+
