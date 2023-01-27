@@ -4,6 +4,11 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import StratifiedShuffleSplit
 
+import logging
+  
+log = logging.getLogger(__name__)
+log.addHandler(logging.NullHandler())
+
 from .data import generate_tests_by_month, bootstrap
 
 # QuantifierTestResult = frozentuple(QuantifierTestResult, "Month Model Quantifier Calibration MAE MRAE KLD, prevalence_estimate, prevalence_true")
@@ -38,7 +43,7 @@ def test_quantifiers(quantifiers, transformed_data):
     tests = []
 
     for m, df_test in enumerate(generate_tests_by_month(transformed_data)):
-
+        log.info(f"Testing quantifiers on iteration m={m}.")
         results = _quantify(quantifiers, df_test.instances, df_test.labels)
         results = pd.DataFrame.from_dict(results)[["Month"]] = 6 + m
         tests = pd.concat(tests, results)
@@ -50,11 +55,13 @@ def test_quantifiers_bootstraped(quantifiers, data, n_bootstraps: int = 30, frac
     tests = pd.DataFrame()
 
     # Month 6, 7, 8
+    log.info(f"Start Testing with n={n_bootstraps} bootstraps fraction={fraction}.")
+
     for m in range(6, 9):
+        log.info(f"Testing m={m} for {n_bootstraps} bootstraps.")
         test_data = data[data["month"] == m - 1]
 
         for _ in range(n_bootstraps):
-
             sampleX, sampley = bootstrap(test_data, fraction=fraction)
 
             results = _quantify(quantifiers, sampleX, sampley)
@@ -88,13 +95,14 @@ def do_n_tests_with_subsampling_on_qlist(
     """
 
     results = pd.DataFrame()
+    log.info(f"Start Test {N} StratifiedSuffleSplit itrerations.")
 
     sss = StratifiedShuffleSplit(n_splits=N, test_size=fraction, random_state=42)
-    for _, test_index in sss.split(X_test, y_test):
+    for i, test_index in sss.split(X_test, y_test):
         # print(f"Fold {i}:")
         # print(f"  Train: index={train_index}")
         # print(f"  Test:  index={test_index}")
-
+        log.info(f"{i} itreration.")
         result = _quantify(quantifiers, X_test.loc(test_index), y_test.loc(test_index))
         results = pd.concat([results, pd.DataFrame.from_dict(result)])
 
