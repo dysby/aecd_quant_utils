@@ -154,7 +154,8 @@ def artificial_prevalence_sampling(data: pd.DataFrame, p=0.2, random_state=4543)
         ]
     )
 
-    sampleX = sample.drop(["month", "fraud_bool"], axis=1)
-    sampley = sample.fraud_bool
+    #sampleX = sample.drop(["month", "fraud_bool"], axis=1)
+    #sampley = sample.fraud_bool
 
-    return sampleX, sampley
+    #return sampleX, sampley
+    return sample
