@@ -4,8 +4,6 @@ import numpy as np
 import quapy as qp
 from quapy.data import LabelledCollection
 
-def artificial_prevalence_sampling(data: pd.DataFrame, p=0.2, random_state=42):
-    pass
 
 def generate_synthetic_p(df, p=0.2, random_state=42):
     transformed = pd.DataFrame()
@@ -128,3 +126,35 @@ def bootstrap(data: pd.DataFrame, fraction: float = 0.1):
     return sample.drop(["month", "fraud_bool"], axis=1), sample.fraud_bool
 
 
+def artificial_prevalence_sampling(data: pd.DataFrame, p=0.2, random_state=4543):
+    N = data.shape[0]
+
+    # pdb.set_trace()
+    max_positives = int(data.fraud_bool.eq(1).sum())
+    max_negatives = int(data.fraud_bool.eq(0).sum())
+
+    positives = int(N * p)
+    negatives = int(N * (1 - p))
+
+    if positives > max_positives:
+        positives = max_positives
+        negatives = max_positives / p - max_positives
+    elif negatives > max_negatives:
+        negatives = max_negatives
+        positives = max_negatives / (1 - p) - max_negatives
+
+    positives = int(positives)
+    negatives = int(negatives)
+
+    # print(f"positives = {positives}, negatives = {negatives}")
+    sample = pd.concat(
+        [
+            data[data.fraud_bool.eq(0)].sample(negatives, random_state=random_state),
+            data[data.fraud_bool.eq(1)].sample(positives, random_state=random_state),
+        ]
+    )
+
+    sampleX = sample.drop(["month", "fraud_bool"], axis=1)
+    sampley = sample.fraud_bool
+
+    return sampleX, sampley
